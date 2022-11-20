@@ -1,0 +1,22 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+        
+}
+
+.logo {
+    padding-bottom: 20px;
+}
+
+.product-detail {
+    background-color: rgb(71, 69, 69);
+}
+
+
+
+.modal {
+    width: 800px !important;
+    margin: 0 auto;
+}

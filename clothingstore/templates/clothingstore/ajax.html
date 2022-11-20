@@ -1,0 +1,88 @@
+<script>
+console.log("Working")
+var span = document.createElement('span')
+$('#addtocart').click(
+
+  function () {
+
+    const radioButtons = document.querySelectorAll('input[name="psize"]');
+    let productsize;
+    for (const radioButton of radioButtons) {
+      if (radioButton.checked) {
+        productsize = radioButton.value;
+        break;
+      }
+
+    }
+    var productName = $('#productname').text()
+    var productprice = $('#productprice').text().substr(6, ($("#productprice").text().length) - 2)
+    var productReview = $('#productreviews').text().substr(8, $("#productreviews").text().length - 2)
+    var productid = $('#product_id').text()
+    var productquantity = $('#num').text()
+    console.log(productquantity)
+    var mydata = {
+      action: "orderData",
+      productName: productName, productsize: productsize, productQuantity: productquantity
+      , productprice: productprice, productReview: productReview, csrfmiddlewaretoken: '{{ csrf_token }}'
+    }
+
+
+
+    $.ajax({
+      url: "{%url 'product' product_detail.id %}",
+      method: 'POST',
+      data: mydata,
+      success: function (data) {
+        console.log(data)
+      }
+    });
+    console.log('its working')
+  });
+
+$("#savechanges").click("click", function () {
+  var address = $("#address").val()
+  var phonenumber = $("#phonenumber").val()
+  data = { action: 'modalData', csrfmiddlewaretoken: "{{ csrf_token }}", 'address': address, 'phonenumber': phonenumber }
+
+  console.log('ADDRESS:', address)
+  console.log("Phone Number:", phonenumber)
+
+  $.ajax({
+    url: "{%url 'product' product_detail.id %}",
+    type: 'POST',
+    data: data,
+    success: function (data) {
+      console.log(data)
+    }
+  })
+})
+
+// get the review 
+
+$('#add_review').click("click", function () {
+  val = $('#review_text').val()
+  if (val != "") {
+    $.ajax({
+      url: "{%url 'product' product_detail.id %}",
+      type: 'POST',
+      data: { 'text-val': val, 'product_id': "{{product_detail.id}}", csrfmiddlewaretoken: "{{ csrf_token }}", action: "review" },
+      success: function (data) {
+        console.log("Success")
+        location.reload()
+      }
+    })
+
+  }
+  
+  else {
+    var elem = document.getElementById('review_msg')
+   
+    span.innerHTML = `Enter correct Review
+    `
+    elem.append(span)
+    console.log("You have not written any review")
+  }
+
+})
+
+</script>

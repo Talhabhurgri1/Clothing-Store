@@ -1,0 +1,170 @@
+{% extends 'clothingstore/index.html'%}
+{%load static%}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+
+{%block head%}
+
+<!--CSS IMPLEMENTATION-->
+
+<link rel="stylesheet" href="{%static 'css/home.css'%}">
+{%endblock%}
+{%block content%}
+{%include 'clothingstore/navbar.html'%}
+<section>
+    <!-- Filter portion -->
+    <div class="container my-5">
+        <div class="container">
+            <div class="row d-inline text-end  m-3">
+                <form method="GET" action="{%url 'products' %}">
+                    {{product_listing.form }}
+                    <button type="submit" class="btn btn-secondary mt-2">Filter Results</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--  CARD - CONTAINER -->
+<section>
+
+    <!-- Container that displays all the products -->
+    <div class="container my-5" id="cardcontainer">
+        <div class="row d-flex" id="product-row">
+            {% for product in productsFinalListing %}
+            <div class="col col-lg-4 col-md-4">
+                <div class="card mx-2 mb-4">
+                    <img src={{product.product_pic.url}} class="card-img-top card-image" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">{{product.product_name}}</h5>
+                        <div class="addtocard-button text-center">
+                            <a href="{%url 'product' product.id %}"><img class="addtocart"
+                                    src="{%static 'images/addtocart.png'%}"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+        <!-- PAGINATION SECTION -->
+        <nav class="d-flex justify-content-center">
+            <ul class="pagination ">
+              <li class="page-item">
+                {% if productsFinalListing.has_previous %}
+                <a class="page-link" href="?page=1">&laquo; first</a>
+                <a class="page-link" href="?page={{productsFinalListing.previous_page_number}}">Previous</a>
+                {%endif%}
+              </li>
+              {%for page in num_of_products%}
+              <li class="page-item"><a class="page-link" href="?page={{page}}">{{page}}</a></li>
+              {%endfor%}
+              {% if productsFinalListing.has_next %}
+              <a class="page-link" href="?page={{productsFinalListing.next_page_number}}">Next</a>
+              <a class="page-link" href="?page={{ productsFinalListing.paginator.num_pages }}">last &raquo;</a>
+                
+              {%endif%}
+            </ul>
+          </nav>
+           </div>
+
+    <!--    {{products_json|json_script:'products_json'}} -->
+    </div>
+</section>
+
+{%include 'clothingstore/footer.html'%}
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+    crossorigin="anonymous"></script>
+
+
+
+<!-- SCRIPT FOR RENDERING CARDS ON THE CONTAINER -->
+<!--
+<script type="text/javascript">
+    var row = document.getElementById('product-row') // GETTING_THE_ROW_FOR_APPENDING_FOR_RESULT.
+    var card_group = document.getElementById('cardgroup') // GETTING_THE_CARD_GROUP     
+    var products = document.getElementById('products_json').textContent
+    products = JSON.parse(products)    
+    
+    // Generating Links to Product site 
+    function linkGenerator(page_name,id,image_with_path){
+        
+        //Link generating 
+        var head_link = "<a href={% url '"
+        var head_link2 = " %}>"
+        var head_tail = "</a>"
+
+        //Image 
+        var image_part1 = "<img class'addtocart' src={% static '"
+        var image_part2 = " %}"
+        var image_tail = ">"
+
+        full_image = image_part1.concat(image_with_path,"' ",image_part2,image_tail) // full_image_link <img src="django_url>"
+        full_link = head_link.concat(page_name,"' ",id,head_link2,full_image,head_tail) // full anchor link <a href="django_url> full_image_link </a>
+        //console.log(full_link)
+        return full_link
+        
+    }
+
+ 
+    // SEARCH_FILTER 
+    $('#search').click(function () {
+        var product_type = $("#clothes").find(":selected").val();
+        console.log('product_type: '+ product_type)
+        
+        //PRODUCT_DETAILS     
+        console.log('products', products)
+        
+        // USING_MAP_TO_GET_NEW_RESULT_IN_NEW_ARRAY
+        let displaymenu = products.map(function (element,index) {
+           
+            if (element.product_category == product_type) {
+                link = linkGenerator('product',element.id,'images/addtocard.png')
+                return `
+                <div class="card">
+                    <img src="${element.photo}" class="card-img-top card-image" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">${element.product_name}</h5>
+                        <div class="addtocard-button text-center">
+                            ${link}
+                        </div>  
+                    </div>
+                     </div>`;
+            }
+
+        })
+
+        //RENDERING ONTO THE TEMPLATE
+        displaymenu = displaymenu.join(""); // ALL_THE_RETURN_CARDS_AND_JOIN_WITH 
+        card_group.innerHTML = displaymenu
+        console.log(card_group.innerHTML)
+        row.innerHTML = card_group.innerHTML;  // ADDING_ELEMENTS_TO_THE_ROW       
+    })
+    
+
+//IF_SEARCH_BUTTON_IS_NOT_CLICKED_THEN_THIS_WILL_BE_TRIGGERED
+ /*
+    homeMenu = products.map(function(element,index){
+        return `
+                <div class="card">
+                    <img src="${element.photo}" class="card-img-top card-image" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">${element.product_name}</h5>
+                        <div class="addtocard-button text-center">
+                            <a href=""><img class="addtocart" src="{%static 'images/addtocart.png'%}"></a>
+                        </div>  
+                    </div>
+                     </div>`;
+
+    })
+    
+    homeMenu = homeMenu.join("");  
+    card_group.innerHTML = homeMenu
+    console.log(card_group.innerHTML)
+    row.innerHTML = card_group.innerHTML;         
+*/
+
+</script>
+-->
+{%endblock%}
